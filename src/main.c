@@ -7,21 +7,20 @@ int genKeys()
     int res = 0;
     res |= system("openssl genpkey -out keys/privkey.pem -algorithm rsa");
     res |= system("openssl rsa -in keys/privkey.pem -outform PEM -pubout -out keys/pubkey.pem");
-    printf("%d\n", res);
     return res;
 }
 
 int _sign(char *key, char *file)
 {
     char cmd[2048] = "";
-    sprintf(cmd, "openssl dgst -sha256 -sign %s -out sign.sha256 %s && openssl enc -base64 -in sign.sha256 -out %s.sig && del sign.sha256", key, file, file);
+    sprintf(cmd, "openssl dgst -sha256 -sign %s -out sign.sha256 %s && openssl enc -base64 -in sign.sha256 -out %s.sig && rm sign.sha256", key, file, file);
     return system(cmd);
 }
 
 int _verify(char *key, char *file)
 {
     char cmd[2048] = "";
-    sprintf(cmd, "openssl enc -base64 -d -in %s.sig -out sign.sha256 && openssl dgst -sha256 -verify %s -signature sign.sha256 %s && del sign.sha256", file, key, file);
+    sprintf(cmd, "openssl enc -base64 -d -in %s.sig -out sign.sha256 && openssl dgst -sha256 -verify %s -signature sign.sha256 %s && rm sign.sha256", file, key, file);
     return system(cmd);
 }
 
