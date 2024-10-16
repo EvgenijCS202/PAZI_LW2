@@ -53,34 +53,34 @@ int main(int argc, char **argv)
             file = optarg;
             break;
         default:
-            fprintf(2, "help: %s [-g|-k key] [-s|-v] -f file\n");
+            fprintf(stderr, "help: %s [-g|-k key] [-s|-v] -f file\n");
             return 1;
         }
     }
     if ((!sign && !verify) || (!gen_keys && key == NULL) || file == NULL)
     {
-        fprintf(2, "help: %s [-g|-k key] [-s|-v] -f file\n");
+        fprintf(stderr, "help: %s [-g|-k key] [-s|-v] -f file\n");
         return 1;
     }
     if (sign && verify)
     {
-        fprintf(2, "choose only one option [-s|-v]\n");
+        fprintf(stderr, "choose only one option [-s|-v]\n");
         return 1;
     }
     if (gen_keys && key != NULL)
     {
-        fprintf(2, "choose only one option [-g|-k key]\n");
+        fprintf(stderr, "choose only one option [-g|-k key]\n");
         return 1;
     }
     if (verify && key == NULL)
     {
-        fprintf(2, "can't gen keys with verify\n");
+        fprintf(stderr, "can't gen keys with verify\n");
         return 1;
     }
     if (gen_keys)
     {
         if (genKeys())
-            return;
+            return 1;
     }
     if (sign)
     {
