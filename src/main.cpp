@@ -253,7 +253,6 @@ int main(int argc, char **argv)
         fprintf(out, "%s", enc);
         fclose(out);
         printf("Successfully signed\n");
-        free(enc);
     }
     if (verify != NULL)
     {
