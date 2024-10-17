@@ -13,6 +13,13 @@
 #include <fstream>
 #include <vector>
 
+/**
+ * @brief Функция получения структуры RSA по её секретному ключу
+ *
+ * @param[in] key Секретный ключ
+ *
+ * @return Указатель на RSA
+ */
 RSA *createPrivateRSA(std::string key)
 {
     RSA *rsa = NULL;
@@ -26,6 +33,13 @@ RSA *createPrivateRSA(std::string key)
     return rsa;
 }
 
+/**
+ * @brief Функция получения структуры RSA по её открытому ключу
+ *
+ * @param[in] key Открытый ключ
+ *
+ * @return Указатель на RSA
+ */
 RSA *createPublicRSA(std::string key)
 {
     RSA *rsa = NULL;
@@ -40,6 +54,21 @@ RSA *createPublicRSA(std::string key)
     return rsa;
 }
 
+/**
+ * @brief Функция выработки подписи на основе алгоритма RSA
+ *
+ * @param[in] rsa Указатель на структуру, описывающую схему RSA
+ *
+ * @param[in] Msg Указатель на подписываемое сообщение
+ *
+ * @param[in] MsgLen Размер подписываемого сообщения
+ *
+ * @param[out] EncMsg Указатель на место в памяти для записи указателя подписи
+ *
+ * @param[out] MsgLenEnc Указатель на место в памяти для записи размера подписи
+ *
+ * @return Успешность работы алгоритма выработки подписи
+ */
 bool RSASign(RSA *rsa,
              const unsigned char *Msg,
              size_t MsgLen,
@@ -70,6 +99,23 @@ bool RSASign(RSA *rsa,
     return true;
 }
 
+/**
+ * @brief Функция проверки подписи на основе алгоритма RSA
+ *
+ * @param[in] rsa Указатель на структуру, описывающую схему RSA
+ *
+ * @param[in] MsgHash Указатель на подпись
+ *
+ * @param[in] MsgHashLen Размер подписи
+ *
+ * @param[in] Msg Указатель на подписываемое сообщение
+ *
+ * @param[in] MsgLen Размер подписываемого сообщения
+ *
+ * @param[out] Authentic Результат отработанного алгоритма
+ *
+ * @return Успешность работы алгоритма проверки подписи
+ */
 bool RSAVerifySignature(RSA *rsa,
                         unsigned char *MsgHash,
                         size_t MsgHashLen,
@@ -111,6 +157,15 @@ bool RSAVerifySignature(RSA *rsa,
     }
 }
 
+/**
+ * @brief Функция, реализующая кодирование base64
+ *
+ * @param[in] buffer Указатель на исходный текст
+ *
+ * @param[in] length Размер исходного текста
+ *
+ * @param[out] base64Text Указатель на место в памяти для записи закодированного текста
+ */
 void Base64Encode(const unsigned char *buffer,
                   size_t length,
                   char **base64Text)
@@ -131,17 +186,33 @@ void Base64Encode(const unsigned char *buffer,
     *base64Text = (*bufferPtr).data;
 }
 
+/**
+ * @brief Функция вычисления закодированного в base64 текста
+ *
+ * @param[in] b64input Указатель на закодированный текст
+ *
+ * @return Размер закодированного текста
+ */
 size_t calcDecodeLength(const char *b64input)
 {
     size_t len = strlen(b64input), padding = 0;
 
-    if (b64input[len - 1] == '=' && b64input[len - 2] == '=') // last two chars are =
+    if (b64input[len - 1] == '=' && b64input[len - 2] == '=')
         padding = 2;
-    else if (b64input[len - 1] == '=') // last char is =
+    else if (b64input[len - 1] == '=')
         padding = 1;
     return (len * 3) / 4 - padding;
 }
 
+/**
+ * @brief Функция, реализующая декодирование base64
+ *
+ * @param[in] b64message Указатель на закодированный текст
+ *
+ * @param[out] buffer Указатель на место в памяти для записи декодированного текста
+ *
+ * @param[out] length Размер декодированного текста
+ */
 void Base64Decode(const char *b64message, unsigned char **buffer, size_t *length)
 {
     BIO *bio, *b64;
@@ -158,6 +229,15 @@ void Base64Decode(const char *b64message, unsigned char **buffer, size_t *length
     BIO_free_all(bio);
 }
 
+/**
+ * @brief Функция, реализующая выработку подписи с кодированием base64
+ *
+ * @param[in] privateKey Секретный ключ
+ *
+ * @param[in] plainText Исходный текст для выработки подписи
+ *
+ * @return Выработанная подпись
+ */
 char *signMessage(std::string privateKey, std::string plainText)
 {
     RSA *privateRSA = createPrivateRSA(privateKey);
@@ -170,6 +250,17 @@ char *signMessage(std::string privateKey, std::string plainText)
     return base64Text;
 }
 
+/**
+ * @brief Функция, реализующая выработку подписи с кодированием base64
+ *
+ * @param[in] publicKey Открытый ключ
+ *
+ * @param[in] plainText Исходный текст, проверяемой подписи
+ *
+ * @param[in] signatureBase64 Закодированная в base64 подпись
+ *
+ * @return Результат проверки подписи
+ */
 bool verifySignature(std::string publicKey, std::string plainText, const char *signatureBase64)
 {
     RSA *publicRSA = createPublicRSA(publicKey);
@@ -181,6 +272,13 @@ bool verifySignature(std::string publicKey, std::string plainText, const char *s
     return result & authentic;
 }
 
+/**
+ * @brief Функция чтения файла
+ *
+ * @param fileName Путь к файлу
+ *
+ * @return Содержимое файла
+ */
 std::string readFile(const std::string &fileName)
 {
     std::ifstream ifs(fileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
@@ -194,6 +292,15 @@ std::string readFile(const std::string &fileName)
     return std::string(bytes.data(), fileSize);
 }
 
+/**
+ * @brief Точка входа в программу
+ *
+ * @param argc Количество внешних аргументов программы
+ *
+ * @param argv Список указателей на внешние аргументы
+ *
+ * @return Статус завершения программы
+ */
 int main(int argc, char **argv)
 {
     int opt;
